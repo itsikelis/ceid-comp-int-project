@@ -23,13 +23,13 @@ def main():
     ## Get vocabulary for count vectorizer.
     vocab = prep.get_voc()
     ## Get BoW dataframe for train dataset.
-    X = prep.dat_to_bow_std(r'src/data/dat/train-data.dat', vocab)
+    X = prep.dat_to_bow_std(r'Part-A/data/dat/train-data.dat', vocab)
     ## Get BoW dataframe for test dataset
-    X_eval = prep.dat_to_bow_std(r'src/data/dat/test-data.dat', vocab)
+    X_eval = prep.dat_to_bow_std(r'Part-A/data/dat/test-data.dat', vocab)
     # Load the test labels.
-    Y = np.genfromtxt(r'src/data/dat/train-label.dat', delimiter=' ', 
+    Y = np.genfromtxt(r'Part-A/data/dat/train-label.dat', delimiter=' ',
         dtype='int')
-    Y_eval = np.genfromtxt(r'src/data/dat/test-label.dat', delimiter=' ',
+    Y_eval = np.genfromtxt(r'Part-A/data/dat/test-label.dat', delimiter=' ',
         dtype='int')
 
     print('Labels Loaded!')
