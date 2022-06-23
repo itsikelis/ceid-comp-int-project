@@ -3,33 +3,21 @@ import numpy as np
 import pandas as pd
 import preprocess as prep
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import KFold
+POP_COUNT = 5
 
-import tensorflow as tf
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
-from keras import backend as K
+def main():
+    # Create a population.
+    pop = prep.create_population(POP_COUNT, 1.6/3)
 
-import os
-import pickle
+    # Get the BoW model from the previous part.
+    X = prep.dat_to_bow_2(r'src/Part-B/data/dat/mini-test.dat')
+    
+    tf_matrix = prep.calc_tf(pop, X)
+
+    print("FINAL SUM")
+    print(tf_matrix.sum())
 
 
-print('Loading Data.')
-## Get vocabulary for count vectorizer.
-vocab = prep.get_voc()
-## Get BoW dataframe for train dataset.
-X = prep.dat_to_bow_std(r'Part-B/data/dat/train-data.dat', vocab)
-## Get BoW dataframe for test dataset
-X_eval = prep.dat_to_bow_std(r'Part-B/data/dat/test-data.dat', vocab)
-# Load the test labels.
-Y = np.genfromtxt(r'Part-B/data/dat/train-label.dat', delimiter=' ',
-                  dtype='int')
-Y_eval = np.genfromtxt(r'Part-B/data/dat/test-label.dat', delimiter=' ',
-                       dtype='int')
-
-print('Labels Loaded!')
-
-print(X.head())
+if __name__ == '__main__':
+    for i in range(0,5):
+        main()
