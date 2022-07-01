@@ -5,12 +5,18 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 
-# ## Open History files of each model.
-# ## Model 1.
-# path = os.path.join('src', 'saves', 'a5_c_1', 'history', 'history.pkl')
-# file = open(path, 'rb')
-# hist1 = pkl.load(file)
-# file.close()
+## @package prep
+#
+#  Some utility scripts for visualizing the data produced by the codes in Part A and B.
+#
+
+
+## Open History files of each model.
+## Model 1.
+path = os.path.join('src', 'Part-B', 'saves', 'history', 'history.pkl')
+file = open(path, 'rb')
+hist1 = pkl.load(file)
+file.close()
 # ## Model 3.
 # path = os.path.join('src', 'saves', 'a5_c_2', 'history', 'history.pkl')
 # file = open(path, 'rb')
@@ -29,35 +35,35 @@ import os
 
 
 
-# ## Plot Training Data
-# # Plot Loss Function.
-# plt.figure()
-# plt.xlabel('Epochs')
-# plt.ylabel('Cross Entropy')
-# plt.plot(hist1['loss'], label='128 neurons')
+## Plot Training Data
+# Plot Loss Function.
+plt.figure()
+plt.xlabel('Epochs')
+plt.ylabel('Cross Entropy')
+plt.plot(hist1['loss'], label='loss')
 # plt.plot(hist2['loss'], label='256 neurons')
 # plt.plot(hist3['loss'][:250], label='coeff = .9')
 # plt.plot(hist4['loss'][:250], label='lr=.1 | m=.6')
-# plt.legend(loc='best')
-# # Plot MSE.
-# plt.figure()
-# plt.xlabel('Epochs')
-# plt.ylabel('Mean Square Error')
-# plt.plot(hist1['mse'], label='128 neurons')
+plt.legend(loc='best')
+# Plot MSE.
+plt.figure()
+plt.xlabel('Epochs')
+plt.ylabel('Mean Square Error')
+plt.plot(hist1['mse'], label='mse')
 # plt.plot(hist2['mse'], label='256 neurons')
 # plt.plot(hist3['mse'][:250], label='coeff = .9')
 # plt.plot(hist4['mse'][:250], label='lr=.1 | m=.6')
-# plt.legend(loc='best')
+plt.legend(loc='best')
 # # Plot Accuracy.
-# plt.figure()
-# plt.xlabel('Epochs')
-# plt.ylabel('Accuracy')
-# plt.plot(hist1['accuracy'], label='128 neurons')
+plt.figure()
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.plot(hist1['accuracy'], label='accuracy')
 # plt.plot(hist2['accuracy'], label='256 neurons')
 # plt.plot(hist3['accuracy'][:250], label='coeff = .9')
 # plt.plot(hist4['accuracy'][:250], label='lr=.1 | m=.6')
-# plt.legend(loc='best')
-# plt.show()
+plt.legend(loc='best')
+plt.show()
 
 # # Plot Training Data
 # # Plot Loss Function.
@@ -92,15 +98,15 @@ import os
 
 ## Open History files of each model.
 # Model 1.
-path = os.path.join('src', 'saves', 'a5_c_1', 'evaluation', 'eval.pkl')
-file = open(path, 'rb')
-hist1 = pkl.load(file)
-file.close()
+# path = os.path.join('src', 'saves', 'a5_c_1', 'evaluation', 'eval.pkl')
+# file = open(path, 'rb')
+# hist1 = pkl.load(file)
+# file.close()
 # Model 3.
-path = os.path.join('src', 'saves', 'a5_c_2', 'evaluation', 'eval.pkl')
-file = open(path, 'rb')
-hist2 = pkl.load(file)
-file.close()
+# path = os.path.join('src', 'saves', 'a5_c_2', 'evaluation', 'eval.pkl')
+# file = open(path, 'rb')
+# hist2 = pkl.load(file)
+# file.close()
 # # Model 3.
 # path = os.path.join('src', 'saves', 'a4_3', 'evaluation', 'eval.pkl')
 # file = open(path, 'rb')
@@ -112,7 +118,7 @@ file.close()
 # hist4 = pkl.load(file)
 # file.close()
 
-print(hist1)
-print(hist2)
+# print(hist1)
+# print(hist2)
 # print(hist3)
 # print(hist4)

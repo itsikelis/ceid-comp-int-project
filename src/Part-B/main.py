@@ -27,11 +27,11 @@ MAX_ITER = 500
 THRESHOLD = 2e-05
 
 ## Population size.
-POP_SIZE = 20
+POP_SIZE = 200
 ## Crossover probability.
-CROSS_PROB = .6
+CROSS_PROB = .1
 ## Mutation probability.
-MUTATION_PROB = .1
+MUTATION_PROB = .01
 
 def main():
 
@@ -81,6 +81,7 @@ def main():
         if (np.mean(generation_scores) > np.mean(best_scores)):
             print('Updated')
             best_scores = generation_scores
+            best_individual = pop[np.argmax(scores)]
 
         ## Record generation count.
         total_generations = np.append(total_generations, generation_count)
@@ -96,77 +97,83 @@ def main():
 
     plt.show()
 
-############  NN  ############
+
+    ############  Artificial Neural Network - Code Taken from Part-A.  ############
 
 
-# print('Loading Data.')
-# ## Get BoW dataframe for train dataset.
-# X = prep.dat_to_bow_std(r'src/Part-B/data/dat/train-data.dat')
-# ## Get BoW dataframe for test dataset
-# X_eval = prep.dat_to_bow_std(r'src/Part-B/data/dat/test-data.dat')
-# # Load the test labels.
-# Y = np.genfromtxt(r'src/Part-B/data/dat/train-label.dat', delimiter=' ',
-#                   dtype='int')
-# Y_eval = np.genfromtxt(r'src/Part-B/data/dat/test-label.dat', delimiter=' ',
-#                        dtype='int')
+    print('Loading Data.')
+    ## Get BoW dataframe for train dataset.
+    X = prep.dat_to_bow_std(r'src/Part-B/data/dat/train-data.dat')
+    ## Get BoW dataframe for test dataset
+    X_eval = prep.dat_to_bow_std(r'src/Part-B/data/dat/test-data.dat')
+    # Load the test labels.
+    Y = np.genfromtxt(r'src/Part-B/data/dat/train-label.dat', delimiter=' ',
+                      dtype='int')
+    Y_eval = np.genfromtxt(r'src/Part-B/data/dat/test-label.dat', delimiter=' ',
+                           dtype='int')
 
-# print('Labels Loaded!')
 
-# ## Create a callback for early stopping
-# callback = tf.keras.callbacks.EarlyStopping(
-#     monitor='accuracy', min_delta=0.0003, patience=3)
+    ## Delete all zero values from X and X_eval, as instructed by the best individual.
+    X = np.delete(X, np.where(best_individual == 0), axis=1)
+    X_eval = np.delete(X_eval, np.where(best_individual == 0)[0], axis=1)
 
-# ## Split Data To Training And Testing Data 5-Fold
-# kfold = KFold(n_splits=2, shuffle=True)
-# prev_loss = 100
-# for curr_fold, (train, test) in enumerate(kfold.split(X)):
+    print('Labels Loaded!')
 
-#     ## Specify Model's Input.
-#     inputs = keras.Input(shape=(X.shape[1], ))
-#     ## Create One Hidden Layer.
-#     x = keras.layers.Dense(units=4270, activation='relu',
-#                            activity_regularizer=keras.regularizers.L2(0.9))(inputs)
-#     ## Add second Hidden Layer
-#     x = keras.layers.Dense(units=8540, activation='relu',
-#                            activity_regularizer=keras.regularizers.L2(0.9))(x)
-#     ## Specify Model's Output.
-#     outputs = keras.layers.Dense(units=20, activation='sigmoid',
-#                                  activity_regularizer=keras.regularizers.L2(0.9))(x)
-#     ## Create Model.
-#     model = keras.Model(inputs=inputs, outputs=outputs)
+    ## Create a callback for early stopping
+    callback = tf.keras.callbacks.EarlyStopping(
+        monitor='accuracy', min_delta=0.0003, patience=3)
 
-#     ## Compile Model.
-#     model.compile(loss=keras.losses.BinaryCrossentropy(),
-#                   optimizer=tf.keras.optimizers.SGD(
-#         learning_rate=0.001, momentum=0.2),
-#         metrics=['mse', 'accuracy'])
-#     ## Print Model's Summary.
-#     model.summary()
-#     ## Fit Model and store each epoch's metrics in history.
-#     history = model.fit(X, Y, epochs=150,
-#                         verbose=1,
-#                         callbacks=[callback]
-#                         )
+    ## Split Data To Training And Testing Data 5-Fold
+    kfold = KFold(n_splits=2, shuffle=True)
+    prev_loss = 100
+    for curr_fold, (train, test) in enumerate(kfold.split(X)):
 
-#     ## Evaluate the model and store results to file.
-#     eval = model.evaluate(X_eval, Y_eval, verbose=1)
+        ## Specify Model's Input.
+        inputs = keras.Input(shape=(X.shape[1], ))
+        ## Create One Hidden Layer.
+        x = keras.layers.Dense(units=4270, activation='relu',
+                               activity_regularizer=keras.regularizers.L2(0.9))(inputs)
+        ## Add second Hidden Layer
+        x = keras.layers.Dense(units=8540, activation='relu',
+                               activity_regularizer=keras.regularizers.L2(0.9))(x)
+        ## Specify Model's Output.
+        outputs = keras.layers.Dense(units=20, activation='sigmoid',
+                                     activity_regularizer=keras.regularizers.L2(0.9))(x)
+        ## Create Model.
+        model = keras.Model(inputs=inputs, outputs=outputs)
 
-#     # Save history, eavluation results and model
-#     if(eval[0] < prev_loss):
-#         ## Store History.
-#         history_path = os.path.join(
-#             'src', 'Part-B', 'saves', 'history', 'history.pkl')
-#         f = open(history_path, 'wb')
-#         pickle.dump(history.history, f)
-#         f.close()
-#         ## Store Evaluation Results.
-#         eval_path = os.path.join(
-#             'src', 'Part-B', 'saves', 'evaluation', 'eval.pkl')
-#         f = open(eval_path, 'wb')
-#         pickle.dump(eval, f)
-#         f.close()
-#         # End If.
-#     # End For.
+        ## Compile Model.
+        model.compile(loss=keras.losses.BinaryCrossentropy(),
+                      optimizer=tf.keras.optimizers.SGD(
+            learning_rate=0.001, momentum=0.2),
+            metrics=['mse', 'accuracy'])
+        ## Print Model's Summary.
+        model.summary()
+        ## Fit Model and store each epoch's metrics in history.
+        history = model.fit(X, Y, epochs=100,
+                            verbose=1,
+                            callbacks=[callback]
+                            )
+
+        ## Evaluate the model and store results to file.
+        eval = model.evaluate(X_eval, Y_eval, verbose=1)
+
+        # Save history, eavluation results and model
+        if(eval[0] < prev_loss):
+            ## Store History.
+            history_path = os.path.join(
+                'src', 'Part-B', 'saves', 'history', 'history.pkl')
+            f = open(history_path, 'wb')
+            pickle.dump(history.history, f)
+            f.close()
+            ## Store Evaluation Results.
+            eval_path = os.path.join(
+                'src', 'Part-B', 'saves', 'evaluation', 'eval.pkl')
+            f = open(eval_path, 'wb')
+            pickle.dump(eval, f)
+            f.close()
+            # End If.
+        # End For.
 
 
 if __name__ == '__main__':

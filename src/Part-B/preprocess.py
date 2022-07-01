@@ -1,6 +1,5 @@
 from cmath import inf
 from operator import delitem
-from cv2 import mean
 import numpy as np
 import pandas as pd
 
@@ -29,7 +28,6 @@ def get_voc():
 	strings = [str(x) for x in ints]
 	voc = dict(zip(strings, ints))
 	return voc
-
 
 ## Function that creates a standardised BoW.
 #
@@ -83,27 +81,6 @@ def dat_to_bow_2(path):
 	doc_vec = cv.fit_transform(df['text'])
 	return doc_vec.toarray()
 
-
-## @brief Function that pads the .dat file contents with 0s at the end.
-#
-#  @param path The path to the .dat file.
-#
-#  @return embeddings The word embeddings returned as a numpy ndarray.
-#
-def dat_to_pad(path):
-	## Read dat file to a pandas dataframe.
-	df = pd.read_csv(path, header=None, names=['text'])
-	## Remove all sentence and word counters using regex.
-	df = df.replace(to_replace='<[0-9]*> ', value='', regex=True)
-	## Split each word in its own column.
-	df = df['text'].str.split(' ', expand=True)
-	## Fill empty spots with zeros.
-	df = df.fillna(0)
-	## Return data as numpy matrix.
-	arr = df.to_numpy(dtype='int')
-	return arr
-
-
 ## @brief Function that creates a population of 8520 by 1 vectors.
 #
 #  @param count The population count.
@@ -111,6 +88,7 @@ def dat_to_pad(path):
 #  @param prob The probability to pick a word for the current individual.
 #
 #  @return pop A 8520 by count matrix of the population.
+#
 def create_population(count, prob):
 
 	## Create an empty population.
@@ -135,12 +113,10 @@ def create_population(count, prob):
 
 ## @brief Function that calculates the term frequency of an individual.
 #
-#  @param count The population count.
+#  @param bow The BagOfWords matrix.
 #
-#  @param prob The probability to pick a word for the current individual.
+#  @return mean_tf_values The mena tf values for every word.
 #
-#  @return bow_tf A DOC_COUNT by WORD_COUNT ndarray with the tf values 
-#  of each word.
 def calc_tf(bow):
 
 	## Add bow row-wise to calculate total words in each document.
@@ -164,7 +140,8 @@ def calc_tf(bow):
 #
 #  @param bow The BoW representation of the test data.
 #
-#  @return idf A (1, VOC_SIZE) array with the idf of each word.
+#  @return idf_values A (1, VOC_SIZE) array with the idf of each word.
+#
 def calc_idf(bow):
 	## Replace all non-zero elements of bow with 1.
 	bow[bow>0] = 1
@@ -186,12 +163,28 @@ def calc_idf(bow):
 	## Return idf_values
 	return idf_values
 
+## @brief Function that calculates the mean tf*idf value for every word in the vocabulary.
+#
+#  @param mean_tf_arrayt The mean tf values for each word.
+#
+#  @param idf_array The idf values of each word in the dataset.
+#
+#  @return idf_values A (1, VOC_SIZE) array with the idf of each word.
+#
 def calc_tf_idf(mean_tf_array, idf_array):
 	## Multiply each row of the matrix with the idf values for each word.
 	tf_idf = np.multiply(mean_tf_array, idf_array)
 	
 	return tf_idf
 
+## @brief Function that evaluates each indivivual in a population.
+#
+#  @param pop The population matrix.
+#
+#  @param tf_idf The mean tf*idf values of each word in the dataset.
+#
+#  @return score a 1 by population_size array containing the scores for each individual.
+#
 def evaluate(pop, tf_idf):
 	## Create a matrix with only the selected words for each individual.
 	selected = np.multiply(pop, tf_idf)
@@ -201,6 +194,16 @@ def evaluate(pop, tf_idf):
 	score = np.divide(score, np.count_nonzero(selected, axis=1)-1000)*SCALAR
 	return score
 
+## @brief Function that performs a slotted roulette selection in a population.
+#
+#  @param pop The population matrix.
+#
+#  @param scores The evaluation score of each individual.
+#
+#  @param pop_size The size of the population.
+#
+#  @return new_pop The new selected individuals.
+#
 def roulette(pop, scores, pop_size):
 
 	## Calculate total score.
@@ -215,6 +218,14 @@ def roulette(pop, scores, pop_size):
 
 	return new_pop
 
+## @brief Function that chooses and uniformly crosses the individuals from a population. 
+#
+#  @param pop The population matrix.
+#
+#  @param cross_probability The probability that an individual is selected for crossing.
+#
+#  @return pop The population containing the offsprings of the crossed individuals.
+#
 def cross(pop, cross_probability):
 	## Initialize an array with the selected individuals.
 	cross_pop = np.empty((0, 8520), dtype=int)
@@ -256,6 +267,14 @@ def cross(pop, cross_probability):
 
 	return pop
 	
+## @brief Function that mutates the genes of a population with a given probability.
+#
+#  @param pop The population matrix.
+#
+#  @param mut_prob The probability for a gene to mutate (toggle).
+#
+#  @return pop The population containing the mutated individuals.
+#
 def mutate(pop, mut_prob):
 	## Calculate a random probability for each gene.
 	r = np.random.random(size=pop.shape)	
